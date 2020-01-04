@@ -12,34 +12,57 @@
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
-int OnInit(){
-	
-	
-	int i = 0;
-	while(i < 5){
-		printAnalyze();   	
-		printManage();
-		printExecute();
-		printTesting();
-		Print(i);
-		i++;
-	}
-	
-	return(INIT_SUCCEEDED);
+int OnInit() {
+
+   Print("Hi I'm Aninditha, your friend in FX Market");
+
+   return(INIT_SUCCEEDED);
 }
 
 //+------------------------------------------------------------------+
 //| Expert deinitialization function                                 |
 //+------------------------------------------------------------------+
-void OnDeinit(const int reason){
-	
+void OnDeinit(const int reason) {
+   Print("Shut down");
 }
 
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
-void OnTick(){
-	
-}
+void OnTick() {
+   string signal = checkEntry();
+   Comment(signal);
 
-//+------------------------------------------------------------------+
+   bool access = canEnter();
+   if(access == true) {
+      access = false;//reset value
+      double volume = lotSizeNeeded();
+
+      if(signal == "buy") {
+         double entryPoint = calculateAskPrice();
+         double stopLoss = calculateStopLoss(signal, entryPoint);
+         double takeProfit = calculateTakeProfit(signal, entryPoint);
+         string comment =
+            "Buy. Price:" + DoubleToString(entryPoint) + " , " +
+            "Volume:" + DoubleToString(volume) + " , " +
+            "SL:" + DoubleToString(stopLoss) + " , " +
+            "TP:" + DoubleToString(takeProfit) + " , ";
+
+         //Print(comment);
+         openBuy(volume,entryPoint, stopLoss, takeProfit, comment);
+      }
+      if(signal == "sell") {
+         double entryPoint = calculateBidPrice();
+         double stopLoss = calculateStopLoss(signal, entryPoint);
+         double takeProfit = calculateTakeProfit(signal, entryPoint);
+         string comment =
+            "Buy. Price:" + DoubleToString(entryPoint) + " , " +
+            "Volume:" + DoubleToString(volume) + " , " +
+            "SL:" + DoubleToString(stopLoss) + " , " +
+            "TP:" + DoubleToString(takeProfit) + " , ";
+
+         //Print(comment);
+         openSell(volume,entryPoint, stopLoss, takeProfit, comment);
+      }
+   }
+}
