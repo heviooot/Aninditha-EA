@@ -7,18 +7,46 @@
 //| Calculate lot size dynamicaly                                    |
 //+------------------------------------------------------------------+
 double lotSizeNeeded() {
-   //TODO make dynamic lot sizing
-   double lotSize = 0.40;
+
+   double lotSize = 0.00;
+
+   lotSize = dynamicLot(lotSize);
+
+   return lotSize;
+}
+
+double dynamicLot(double lotSize) {
+
+   double maxPipsRisked = 5;
+   double maxDlrsRisked = maxRiskInDollar(AccountInfoDouble(ACCOUNT_BALANCE),2);
+
+   //EUR-USD - Standart
+   double pricePerPip = maxDlrsRisked / maxPipsRisked;
+   lotSize = pricePerPip * (10000/1);
+   lotSize /= 100000;
+
+   lotSize = NormalizeDouble(lotSize, 2);
+
+   //TODO support other currency pair
 
    return lotSize;
 }
 
 //+------------------------------------------------------------------+
-//| Prevent multiple order open simultaneously                       |
+//| Calculate the maximum risk in dollar                             |
+//+------------------------------------------------------------------+
+double maxRiskInDollar(double balance, double percent) {
+   return (balance * (percent/100));
+}
+
+
+//+------------------------------------------------------------------+
+//| Prevent multiple order open and small volume trade               |
 //+------------------------------------------------------------------+
 bool canEnter() {
    bool haveAccess = false;
-   if(PositionsTotal() < 1) {
+   double balance = AccountInfoDouble(ACCOUNT_BALANCE);
+   if(PositionsTotal() < 1 && balance > 50) {
       haveAccess = true;
    } else {
       haveAccess = false;

@@ -34,6 +34,7 @@ void OnTick() {
    Comment(signal);
 
    bool access = canEnter();
+   
    if(access == true) {
       access = false;//reset value
       double volume = lotSizeNeeded();
