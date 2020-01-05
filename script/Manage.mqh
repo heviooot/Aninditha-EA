@@ -25,7 +25,12 @@ double dynamicLot(double lotSize) {
    lotSize = pricePerPip * (10000/1);
    lotSize /= 100000;
 
+   //Shift the decimal to 10^-2
+   lotSize = NormalizeDouble(lotSize, 5);
+   lotSize = NormalizeDouble(lotSize, 4);
+   lotSize = NormalizeDouble(lotSize, 3);
    lotSize = NormalizeDouble(lotSize, 2);
+   //Print("Lot Size Normal = " + lotSize);
 
    //TODO support other currency pair
 
@@ -54,12 +59,12 @@ bool canEnter() {
    return haveAccess;
 }
 
-
 //+------------------------------------------------------------------+
 //| Calculate Stop Loss                                              |
 //+------------------------------------------------------------------+
 double calculateStopLoss(string signal, double entry) {
    //TODO support pending order calculation
+   //TODO make a dynamic pips range
    double sl = 0;
    if(signal == "buy") {
       sl = (entry-(50*_Point)); //stop loss 5 pips
@@ -75,6 +80,7 @@ double calculateStopLoss(string signal, double entry) {
 //+------------------------------------------------------------------+
 double calculateTakeProfit(string signal, double entry) {
    //TODO support pending order calculation
+   //TODO make a dynamic pips range
    double tp = 0;
    if(signal == "buy") {
       tp = (entry+(150*_Point)); //stop loss 15 pips

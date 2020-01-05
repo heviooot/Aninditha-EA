@@ -30,24 +30,26 @@ void OnDeinit(const int reason) {
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
 void OnTick() {
+
    string signal = checkEntry();
    Comment(signal);
 
    bool access = canEnter();
-   
+
    if(access == true) {
       access = false;//reset value
       double volume = lotSizeNeeded();
 
+      //TODO Update the comment format
       if(signal == "buy") {
          double entryPoint = calculateAskPrice();
          double stopLoss = calculateStopLoss(signal, entryPoint);
          double takeProfit = calculateTakeProfit(signal, entryPoint);
          string comment =
-            "Buy. Price:" + DoubleToString(entryPoint) + " , " +
+            "Buy. Price:" + DoubleToString(NormalizeDouble(entryPoint,4)) + " , " +
             "Volume:" + DoubleToString(volume) + " , " +
-            "SL:" + DoubleToString(stopLoss) + " , " +
-            "TP:" + DoubleToString(takeProfit) + " , ";
+            "SL:" + DoubleToString(NormalizeDouble(stopLoss, 4)) + " , " +
+            "TP:" + DoubleToString(NormalizeDouble(takeProfit,4));
 
          //Print(comment);
          openBuy(volume,entryPoint, stopLoss, takeProfit, comment);
@@ -57,10 +59,10 @@ void OnTick() {
          double stopLoss = calculateStopLoss(signal, entryPoint);
          double takeProfit = calculateTakeProfit(signal, entryPoint);
          string comment =
-            "Buy. Price:" + DoubleToString(entryPoint) + " , " +
+            "Buy. Price:" + DoubleToString(NormalizeDouble(entryPoint,4)) + " , " +
             "Volume:" + DoubleToString(volume) + " , " +
-            "SL:" + DoubleToString(stopLoss) + " , " +
-            "TP:" + DoubleToString(takeProfit) + " , ";
+            "SL:" + DoubleToString(NormalizeDouble(stopLoss, 4)) + " , " +
+            "TP:" + DoubleToString(NormalizeDouble(takeProfit,4));
 
          //Print(comment);
          openSell(volume,entryPoint, stopLoss, takeProfit, comment);
