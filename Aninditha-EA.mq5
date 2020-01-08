@@ -31,7 +31,7 @@ void OnDeinit(const int reason) {
 //+------------------------------------------------------------------+
 void OnTick() {
 
-   string signal = checkEntry();
+   string signal = checkSignal();
    Comment(signal);
 
    bool access = canEnter();
