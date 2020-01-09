@@ -1,67 +1,87 @@
 //+------------------------------------------------------------------+
-//|                                         Aninditha-EA/Analyze.mqh |
+//|                                         Aninditha-EA/Analyzer.mqh |
 //|                              Copyright 2020, Harold and Siswandy |
 //+------------------------------------------------------------------+
 
+#include "Indicators.mqh";
+
+class Analyzer{
+	public:
+		string signal();
+	private:
+		//strategy
+		string iRSIiMA();
+		string iMACDiRSI();
+		string iMAiMACD();
+		
+		//List of Indicators
+		string iMACDSignal();
+		string iMASignal();
+		string iRSISignal();
+};
 //+------------------------------------------------------------------+
-//| This part gather all the confirmation produce by all indicators  |
+//| This part gather all the Signal produce by all indicators  |
 //+------------------------------------------------------------------+
-string checkSignal() {
+string Analyzer::signal() {
 
    string signal = "";
 
-   signal = iMACDConfirmation();
+   signal = iMACDSignal();
 
    return signal;
 
-}
-
-string iRSIiMA(){
-	string signal = "";
-	
-	string iMASignal = iMAConfirmation();
-	
-	if(iMASignal == "buy"){
-		string iRSISignal = iRSIConfirmation();
-		if(iRSISignal == "buy"){
-			signal = "buy";
-		}
-	}
-	if(iMASignal == "sell"){
-		string iRSISignal = iRSIConfirmation();
-		if(iRSISignal == "sell"){
-			signal = "sell";
-		}
-	}
-	
-	return signal;	
 }
 
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-string iMAiMACD() {
+string Analyzer::iRSIiMA(void) {
    string signal = "";
 
-   string iMASignal = iMAConfirmation();
+   //string iMASignal = iMASignal();
+   string iMASignal = iMASignal();
 
    if(iMASignal == "buy") {
-      string iMACDSignal = iMACDConfirmation();
+      string iRSISignal = iRSISignal();
+      if(iRSISignal == "buy") {
+         signal = "buy";
+      }
+   }
+   if(iMASignal == "sell") {
+      string iRSISignal = iRSISignal();
+      if(iRSISignal == "sell") {
+         signal = "sell";
+      }
+   }
+
+   return signal;
+}
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+string Analyzer::iMAiMACD(void) {
+   string signal = "";
+
+   string iMASignal = iMASignal();
+
+   if(iMASignal == "buy") {
+      string iMACDSignal = iMACDSignal();
       if(iMACDSignal == "buy") {
          signal = "buy";
       }
    }
    if(iMASignal == "sell") {
-		string iMACDSignal = iMACDConfirmation();
+      string iMACDSignal = iMACDSignal();
       if(iMACDSignal == "sell") {
          signal = "sell";
       }
    }
-   
+
    return signal;
 }
 
-string iMACDiRSI() {
+string Analyzer::iMACDiRSI(void) {
 
    //MACD + RSI
    //It check if the the RSI is overbough/oversold
@@ -69,16 +89,16 @@ string iMACDiRSI() {
 
    string signal = "";
 
-   string iRSISignal = iRSIConfirmation();
+   string iRSISignal = iRSISignal();
 
    if(iRSISignal == "buy") {
-      string iMACDSignal = iMACDConfirmation();
+      string iMACDSignal = iMACDSignal();
       if(iMACDSignal == "buy") {
          signal = "buy";
       }
    }
    if(iRSISignal == "sell") {
-      string iMACDSignal = iMACDConfirmation();
+      string iMACDSignal = iMACDSignal();
       if(iMACDSignal == "sell") {
          signal = "sell";
       }
@@ -87,10 +107,11 @@ string iMACDiRSI() {
    return signal;
 }
 
+//-----------------------------Indicators-----------------------------
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-string iMAConfirmation() {
+string Analyzer::iMASignal(void){
    string signal = "";
 
    double SMA10Array[], SMA50Array[], SMA100Array[];
@@ -107,28 +128,28 @@ string iMAConfirmation() {
    CopyBuffer(SMA50Definition, 0, 0, 50, SMA50Array);
    //CopyBuffer(SMA100Definition, 0, 0, 100, SMA100Array);
 
-	double range = MathAbs(SMA10Array[0] - SMA50Array[0]);
-	//range = range;
-	if(range >= 0.0025){
-		if(SMA10Array[0] > SMA50Array[0]){
-			signal = "buy";
-		}
-		if(SMA10Array[0] < SMA50Array[0]){
-			signal = "sell";
-		}
-	}
-/*
-   if(SMA10Array[0] > SMA50Array[0]) {
-      if(SMA50Array[0] > SMA100Array[0]) {
+   double range = MathAbs(SMA10Array[0] - SMA50Array[0]);
+   //range = range;
+   if(range >= 0.0025) {
+      if(SMA10Array[0] > SMA50Array[0]) {
          signal = "buy";
       }
-   }
-   if(SMA10Array[0] < SMA50Array[0]) {
-      if(SMA50Array[0] < SMA100Array[0]) {
+      if(SMA10Array[0] < SMA50Array[0]) {
          signal = "sell";
       }
    }
-*/
+   /*
+      if(SMA10Array[0] > SMA50Array[0]) {
+         if(SMA50Array[0] > SMA100Array[0]) {
+            signal = "buy";
+         }
+      }
+      if(SMA10Array[0] < SMA50Array[0]) {
+         if(SMA50Array[0] < SMA100Array[0]) {
+            signal = "sell";
+         }
+      }
+   */
 
    return signal;
 }
@@ -136,7 +157,7 @@ string iMAConfirmation() {
 //+------------------------------------------------------------------+
 //| MACD indicator                                                   |
 //+------------------------------------------------------------------+
-string iMACDConfirmation() {
+string Analyzer::iMACDSignal(void) {
    string signal = "";
 
    //double myPriceArray[];//Array of several prices
@@ -159,39 +180,39 @@ string iMACDConfirmation() {
    double signalRecent = signalBuffer[0];
    double signalBefore = signalBuffer[1];
 
-	if(macdRecent > 0 && macdRecent > macdBefore){
-		if(signalBefore < 0 && signalRecent < 0){
-			signal = "buy";
-		}
-	}
-	if(macdRecent < 0 && macdRecent < macdBefore){
-		if(signalBefore > 0 && signalRecent > 0){
-			signal = "sell";
-		}
-	}
-/*
-   if(macdRecent < 0) {
-      if(signalBefore > macdBefore) {
-         if(signalRecent < macdRecent) {
-            signal = "buy";
-         }
+   if(macdRecent > 0 && macdRecent > macdBefore) {
+      if(signalBefore < 0 && signalRecent < 0) {
+         signal = "buy";
       }
    }
-   if(macdRecent > 0) {
-      if(signalBefore < macdBefore) {
-         if(signalRecent > macdRecent) {
-            signal = "sell";
-         }
+   if(macdRecent < 0 && macdRecent < macdBefore) {
+      if(signalBefore > 0 && signalRecent > 0) {
+         signal = "sell";
       }
    }
-*/
+   /*
+      if(macdRecent < 0) {
+         if(signalBefore > macdBefore) {
+            if(signalRecent < macdRecent) {
+               signal = "buy";
+            }
+         }
+      }
+      if(macdRecent > 0) {
+         if(signalBefore < macdBefore) {
+            if(signalRecent > macdRecent) {
+               signal = "sell";
+            }
+         }
+      }
+   */
    return signal;
 }
 
 //+------------------------------------------------------------------+
 //| RSI indicator                                                    |
 //+------------------------------------------------------------------+
-string iRSIConfirmation() {
+string Analyzer::iRSISignal(void) {
    string signal = "";
 
    double myPriceArray[];
@@ -206,23 +227,25 @@ string iRSIConfirmation() {
    double recentRSIValue = NormalizeDouble((myPriceArray[1]),2);
    double beforeRSIValue = NormalizeDouble((myPriceArray[2]),2);
 
-/*
-   if(RSIValue < 30) {
-      signal = "buy"; //oversold
+   /*
+      if(RSIValue < 30) {
+         signal = "buy"; //oversold
+      }
+      if(RSIValue > 70) {
+         signal = "sell"; //overbought
+      }
+   */
+   if(recentRSIValue > 50 && beforeRSIValue < 50 && recentRSIValue > beforeRSIValue) {
+      signal = "buy";
    }
-   if(RSIValue > 70) {
-      signal = "sell"; //overbought
+   if(recentRSIValue < 50 && beforeRSIValue > 50 && recentRSIValue < beforeRSIValue) {
+      signal = "sell";
    }
-*/
-	if(recentRSIValue > 50 && beforeRSIValue < 50 && recentRSIValue > beforeRSIValue){
-		signal = "buy";
-	}
-	if(recentRSIValue < 50 && beforeRSIValue > 50 && recentRSIValue < beforeRSIValue){
-		signal = "sell";
-	}
    return signal;
 }
 
 //TODO add more indicators
 
 //+------------------------------------------------------------------+
+
+

@@ -3,10 +3,16 @@
 //|                              Copyright 2020, Harold and Siswandy |
 //+------------------------------------------------------------------+
 
+class Execute {
+ public:
+   void instantBuy(double vol, double prce, double sl, double tp, string comment);
+   void instantSell(double vol, double prce, double sl, double tp, string comment);
+};
+
 //+------------------------------------------------------------------+
 //| Open Instant Buy Contract                                        |
 //+------------------------------------------------------------------+
-void openBuy(double vol, double prce, double sl, double tp, string comment) {
+void Execute::instantBuy(double vol,double prce,double sl,double tp,string comment) {
    //Declare and initialize the trade request and result of trade request
    MqlTradeRequest request = {0};
    MqlTradeResult result = {0};
@@ -33,7 +39,7 @@ void openBuy(double vol, double prce, double sl, double tp, string comment) {
 //+------------------------------------------------------------------+
 //| Open Instant SellContract                                        |
 //+------------------------------------------------------------------+
-void openSell(double vol, double prce, double sl, double tp, string comment) {
+void Execute::instantSell(double vol,double prce,double sl,double tp,string comment) {
 //Declare and initialize the trade request and result of trade request
    MqlTradeRequest request = {0};
    MqlTradeResult result = {0};

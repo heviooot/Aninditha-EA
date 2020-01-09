@@ -5,9 +5,17 @@
 
 //External Script
 #include "script\Testing.mqh";
-#include "script\Analyze.mqh";
+#include "script\Analyzer.mqh";
 #include "script\Manage.mqh";
+#include "script\Calculate.mqh";
 #include "script\Execute.mqh";
+
+//Class Object
+Analyzer AninAnalyze;
+Manager AninManage;
+Calculate AninCalculate;
+Execute AninExecute;
+Testing test;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -15,6 +23,8 @@
 int OnInit() {
 
    Print("Hi I'm Aninditha, your friend in FX Market");
+
+   //test.printTest();
 
    return(INIT_SUCCEEDED);
 }
@@ -31,20 +41,21 @@ void OnDeinit(const int reason) {
 //+------------------------------------------------------------------+
 void OnTick() {
 
-   string signal = checkSignal();
+   string signal = AninAnalyze.signal();
    Comment(signal);
 
-   bool access = canEnter();
+   bool access = AninManage.access();
+   
 
    if(access == true) {
       access = false;//reset value
-      double volume = lotSizeNeeded();
+      double volume = AninCalculate.lotSize();
 
       //TODO Update the comment format
       if(signal == "buy") {
-         double entryPoint = calculateAskPrice();
-         double stopLoss = calculateStopLoss(signal, entryPoint);
-         double takeProfit = calculateTakeProfit(signal, entryPoint);
+         double entryPoint = AninCalculate.askPrice();
+         double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
+         double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
          string comment =
             "Buy. Price:" + DoubleToString(NormalizeDouble(entryPoint,4)) + " , " +
             "Volume:" + DoubleToString(volume) + " , " +
@@ -52,12 +63,12 @@ void OnTick() {
             "TP:" + DoubleToString(NormalizeDouble(takeProfit,4));
 
          //Print(comment);
-         openBuy(volume,entryPoint, stopLoss, takeProfit, comment);
+         AninExecute.instantBuy(volume,entryPoint, stopLoss, takeProfit, comment);
       }
       if(signal == "sell") {
-         double entryPoint = calculateBidPrice();
-         double stopLoss = calculateStopLoss(signal, entryPoint);
-         double takeProfit = calculateTakeProfit(signal, entryPoint);
+         double entryPoint = AninCalculate.bidPrice();
+         double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
+         double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
          string comment =
             "Buy. Price:" + DoubleToString(NormalizeDouble(entryPoint,4)) + " , " +
             "Volume:" + DoubleToString(volume) + " , " +
@@ -65,7 +76,8 @@ void OnTick() {
             "TP:" + DoubleToString(NormalizeDouble(takeProfit,4));
 
          //Print(comment);
-         openSell(volume,entryPoint, stopLoss, takeProfit, comment);
+         AninExecute.instantSell(volume,entryPoint, stopLoss, takeProfit, comment);
       }
    }
 }
+//+------------------------------------------------------------------+
