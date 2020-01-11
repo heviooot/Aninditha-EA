@@ -12,10 +12,15 @@
 
 //Class Object
 Analyzer AninAnalyze;
-Manager AninManage;
+Manage AninManage;
 Calculate AninCalculate;
 Execute AninExecute;
 System Settings;
+
+//Global Variable
+double previousBalance;
+double currentBalance;
+string tempSignal = "";
 
 //+==================================================================+
 
@@ -25,6 +30,12 @@ System Settings;
 int OnInit() {
 
    Print("Hi I'm Aninditha, your friend in FX Market");
+
+   bool haveOpenOrder = AninManage.anyOpenedOrder();
+   if(haveOpenOrder == false) {
+      previousBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+      currentBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+   }
 
    Settings.configH1();
 
@@ -37,6 +48,8 @@ int OnInit() {
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason) {
    Print("Shut down");
+
+   //TODO close all order features
 }
 
 //+------------------------------------------------------------------+
@@ -44,43 +57,54 @@ void OnDeinit(const int reason) {
 //+------------------------------------------------------------------+
 void OnTick() {
 
-   string signal = AninAnalyze.signal();
-   Comment(signal);
-
    bool access = AninManage.access();
 
+   //previousBalance = previousBalance;
+   currentBalance = AccountInfoDouble(ACCOUNT_BALANCE);
 
    if(access == true) {
+
       access = false;//reset value
 
-      //TODO Update the comment format
-      if(signal == "buy") {
-         double volume = AninCalculate.lotSize();
-         double entryPoint = AninCalculate.askPrice();
-         double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
-         double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
-         string comment =
-            "Buy. Price:" + DoubleToString(NormalizeDouble(entryPoint,4)) + " , " +
-            "Volume:" + DoubleToString(volume) + " , " +
-            "SL:" + DoubleToString(NormalizeDouble(stopLoss, 4)) + " , " +
-            "TP:" + DoubleToString(NormalizeDouble(takeProfit,4));
+      string signal = "";
+		bool goingStrong = AninAnalyze.isItTrending();
+		
+		if(goingStrong == true){
+   		//Print("STONK");
+   		if(currentBalance > previousBalance) {
+      	//TODO check trend first feature
+     		signal = tempSignal; 
+	      } else {
+	         signal = AninAnalyze.signal();
+	      }
+	
+	      if(signal == "buy") {
+	         previousBalance = currentBalance;
+	         double volume = AninCalculate.lotSize();
+	         double entryPoint = AninCalculate.askPrice();
+	         double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
+	         double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
+	         string comment = "Balance: " + DoubleToString(previousBalance, 2);
+	         //Print(comment);
+	         AninExecute.instantBuy(volume,entryPoint, stopLoss, takeProfit, comment);
+	      }
+	      if(signal == "sell") {
+	         previousBalance = currentBalance;
+	         double volume = AninCalculate.lotSize();
+	         double entryPoint = AninCalculate.bidPrice();
+	         double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
+	         double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
+	         string comment = "Balance: " + DoubleToString(previousBalance, 2);
+	         //Print(comment);
+	         AninExecute.instantSell(volume,entryPoint, stopLoss, takeProfit, comment);
+	      }
+	      tempSignal = signal;
+   	} else {
+   		//Print("smol pp");
+   	}
 
-         //Print(comment);
-         AninExecute.instantBuy(volume,entryPoint, stopLoss, takeProfit, comment);
-      }
-      if(signal == "sell") {
-         double volume = AninCalculate.lotSize();
-         double entryPoint = AninCalculate.bidPrice();
-         double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
-         double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
-         string comment =
-            "Buy. Price:" + DoubleToString(NormalizeDouble(entryPoint,4)) + " , " +
-            "Volume:" + DoubleToString(volume) + " , " +
-            "SL:" + DoubleToString(NormalizeDouble(stopLoss, 4)) + " , " +
-            "TP:" + DoubleToString(NormalizeDouble(takeProfit,4));
-         //Print(comment);
-         AninExecute.instantSell(volume,entryPoint, stopLoss, takeProfit, comment);
-      }
+      
+
    }
 }
 //+------------------------------------------------------------------+

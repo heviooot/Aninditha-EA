@@ -3,9 +3,10 @@
 //|                              Copyright 2020, Harold and Siswandy |
 //+------------------------------------------------------------------+
 
-class Manager {
+class Manage {
  public:
    bool access();
+   bool anyOpenedOrder();
 };
 
 //+==================================================================+
@@ -13,7 +14,7 @@ class Manager {
 //+------------------------------------------------------------------+
 //| Prevent multiple order open and small volume trade               |
 //+------------------------------------------------------------------+
-bool Manager::access(void) {
+bool Manage::access(void) {
    bool haveAccess = false;
    double balance = AccountInfoDouble(ACCOUNT_BALANCE);
    if(PositionsTotal() < 1 && balance > 50) {
@@ -23,5 +24,19 @@ bool Manager::access(void) {
    }
    return haveAccess;
 }
+
+bool Manage::anyOpenedOrder(void){
+	bool openedOrder;
+	int total = PositionsTotal();
+	if(total == 0){
+		openedOrder = false;
+	}
+	else{
+		openedOrder = true;
+	}
+	return openedOrder;
+}
+
+
 
 //+------------------------------------------------------------------+

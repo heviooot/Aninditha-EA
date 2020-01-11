@@ -8,12 +8,9 @@
 class Analyzer: private Indicators {
  public:
    string signal();
-   void setup(ENUM_TIMEFRAMES period);
+   bool isItTrending();
  private:
-   //strategy
-   string iRSIiMA();
-   string iMACDiRSI();
-   string iMAiMACD();
+   string strategy();
 };
 
 //+==================================================================+
@@ -27,97 +24,89 @@ string Analyzer::signal() {
 
    string signal = "";
 
-   signal = i.MACD(PERIOD_H1);
+   bool trending = isItTrending();
+
+   if(trending == true) {
+
+      signal = strategy();
+
+   }
 
    return signal;
 
 }
 
-//+------------------------------------------------------------------+
-//| Signal: RSI + MA                                                 |
-//+------------------------------------------------------------------+
-string Analyzer::iRSIiMA(void) {
+bool Analyzer::isItTrending(void) {
 
    Indicators i;
 
-   string signal = "";
+   bool trending = false;
 
-   //string iMASignal = iMASignal();
-   string iMASignal = i.MA(PERIOD_H1);
+   double ADXValue = i.ADX(PERIOD_H1, 0, 0);
 
-   if(iMASignal == "buy") {
-      string iRSISignal = i.RSI(PERIOD_H1);
-      if(iRSISignal == "buy") {
-         signal = "buy";
-      }
-   }
-   if(iMASignal == "sell") {
-      string iRSISignal = i.RSI(PERIOD_H1);
-      if(iRSISignal == "sell") {
-         signal = "sell";
-      }
+   if(ADXValue >= 25.00) {
+      trending = true;
    }
 
-   return signal;
+   return trending;
 }
 
-//+------------------------------------------------------------------+
-//| Signal: MA + MACD                                                |
-//+------------------------------------------------------------------+
-string Analyzer::iMAiMACD(void) {
+string Analyzer::strategy(void) {
+
+   //Use MACD (crossover) and ADX (+DI and -DI position) as confirmation
 
    Indicators i;
 
-   string signal = "";
+   string confirmation = "";
 
-   string iMASignal = i.MA(PERIOD_H1);
+   //MACD section
 
-   if(iMASignal == "buy") {
-      string iMACDSignal = i.MACD(PERIOD_H1);
-      if(iMACDSignal == "buy") {
-         signal = "buy";
+   string macdSignal = "";
+
+   double macdRecent = i.MACD(PERIOD_H1, 0, 0);
+   double macdBefore = i.MACD(PERIOD_H1, 0, 1);
+
+   double signalRecent = i.MACD(PERIOD_H1, 1, 0);
+   double signalBefore = i.MACD(PERIOD_H1, 1, 1);
+
+   if(macdRecent > 0 && macdRecent > macdBefore) {
+      if(signalBefore < 0 && signalRecent < 0) {
+         macdSignal = "buy";
       }
    }
-   if(iMASignal == "sell") {
-      string iMACDSignal = i.MACD(PERIOD_H1);
-      if(iMACDSignal == "sell") {
-         signal = "sell";
+   if(macdRecent < 0 && macdRecent < macdBefore) {
+      if(signalBefore > 0 && signalRecent > 0) {
+         macdSignal = "sell";
       }
    }
 
-   return signal;
+   //ADX section
+
+   string adxSignal = "";
+
+   double plusDI = i.ADX(PERIOD_H1, 1, 0);
+   double minusDI = i.ADX(PERIOD_H1, 2, 0);
+
+   if(plusDI > minusDI) {
+      adxSignal = "buy";
+   }
+   if(plusDI < minusDI) {
+      adxSignal = "sell";
+   }
+   
+   //Confirmation section
+   
+   if(macdSignal == "buy" && adxSignal == "buy"){
+   	confirmation = "buy";
+   }
+   if(macdSignal == "sell" && adxSignal == "sell"){
+   	confirmation = "sell";
+   }
+   
+   return confirmation;
+
 }
 
-//+------------------------------------------------------------------+
-//| Signal: MACD + RSI                                               |
-//+------------------------------------------------------------------+
-string Analyzer::iMACDiRSI(void) {
-
-   //MACD + RSI
-   //It check if the the RSI is overbough/oversold
-   //and then proceed to check for MACD main and signal position
-
-   Indicators i;
-
-   string signal = "";
-
-   string iRSISignal = i.RSI(PERIOD_H1);
-
-   if(iRSISignal == "buy") {
-      string iMACDSignal = i.MACD(PERIOD_H1);
-      if(iMACDSignal == "buy") {
-         signal = "buy";
-      }
-   }
-   if(iRSISignal == "sell") {
-      string iMACDSignal = i.MACD(PERIOD_H1);
-      if(iMACDSignal == "sell") {
-         signal = "sell";
-      }
-   }
-
-   return signal;
-}
 
 //TODO add more indicators configuration
 //TODO come up with a trending strategy and ranging strategy

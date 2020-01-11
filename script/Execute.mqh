@@ -29,13 +29,17 @@ void Execute::instantBuy(double vol,double prce,double sl,double tp,string comme
    request.deviation = 5;
    request.type = ORDER_TYPE_BUY;
    request.type_filling = ORDER_FILLING_FOK;
+   request.comment = comment;
 
-   if(!OrderSend(request, result)) {
+   int ticket = OrderSend(request, result);
+	
+   if(!ticket) {
       PrintFormat("OrderSend error %d",GetLastError());// if unable to send the request, output
    }
    PrintFormat("retcode=%u  deal=%I64u  order=%I64u",result.retcode,result.deal,result.order);
 
    //Print(comment);
+   //TODO change return value
 }
 
 //+------------------------------------------------------------------+
@@ -56,13 +60,17 @@ void Execute::instantSell(double vol,double prce,double sl,double tp,string comm
    request.deviation = 5;
    request.type = ORDER_TYPE_SELL;
    request.type_filling = ORDER_FILLING_FOK;
+   request.comment = comment;
 
-   if(!OrderSend(request, result)) {
+	int ticket = OrderSend(request, result);
+	
+   if(!ticket) {
       PrintFormat("OrderSend error %d",GetLastError());// if unable to send the request, output
    }
    PrintFormat("retcode=%u  deal=%I64u  order=%I64u",result.retcode,result.deal,result.order);
 
    //Print(comment);
+   //TODO change return value
 }
 
 //TODO Make pending order
