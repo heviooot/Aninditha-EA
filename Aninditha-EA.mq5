@@ -4,18 +4,20 @@
 //+------------------------------------------------------------------+
 
 //External Script
-#include "script\Testing.mqh";
 #include "script\Analyzer.mqh";
 #include "script\Manage.mqh";
 #include "script\Calculate.mqh";
 #include "script\Execute.mqh";
+#include "script\System.mqh";
 
 //Class Object
 Analyzer AninAnalyze;
 Manager AninManage;
 Calculate AninCalculate;
 Execute AninExecute;
-Testing test;
+System Settings;
+
+//+==================================================================+
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -24,9 +26,10 @@ int OnInit() {
 
    Print("Hi I'm Aninditha, your friend in FX Market");
 
-   //test.printTest();
+   Settings.configH1();
 
    return(INIT_SUCCEEDED);
+
 }
 
 //+------------------------------------------------------------------+
@@ -45,14 +48,14 @@ void OnTick() {
    Comment(signal);
 
    bool access = AninManage.access();
-   
+
 
    if(access == true) {
       access = false;//reset value
-      double volume = AninCalculate.lotSize();
 
       //TODO Update the comment format
       if(signal == "buy") {
+         double volume = AninCalculate.lotSize();
          double entryPoint = AninCalculate.askPrice();
          double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
          double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
@@ -66,6 +69,7 @@ void OnTick() {
          AninExecute.instantBuy(volume,entryPoint, stopLoss, takeProfit, comment);
       }
       if(signal == "sell") {
+         double volume = AninCalculate.lotSize();
          double entryPoint = AninCalculate.bidPrice();
          double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
          double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
@@ -74,7 +78,6 @@ void OnTick() {
             "Volume:" + DoubleToString(volume) + " , " +
             "SL:" + DoubleToString(NormalizeDouble(stopLoss, 4)) + " , " +
             "TP:" + DoubleToString(NormalizeDouble(takeProfit,4));
-
          //Print(comment);
          AninExecute.instantSell(volume,entryPoint, stopLoss, takeProfit, comment);
       }

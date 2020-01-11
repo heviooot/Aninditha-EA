@@ -1,27 +1,24 @@
 //+------------------------------------------------------------------+
-//|                                          Aninditha-EA/Manage.mqh |
+//|                                          Aninditha-EA/System.mqh |
 //|                              Copyright 2020, Harold and Siswandy |
 //+------------------------------------------------------------------+
 
-class Manager {
+class System {
  public:
-   bool access();
+   void configH1(void);
 };
 
 //+==================================================================+
 
 //+------------------------------------------------------------------+
-//| Prevent multiple order open and small volume trade               |
+//| Setup Indicators that used in H1 time frame                      |
 //+------------------------------------------------------------------+
-bool Manager::access(void) {
-   bool haveAccess = false;
-   double balance = AccountInfoDouble(ACCOUNT_BALANCE);
-   if(PositionsTotal() < 1 && balance > 50) {
-      haveAccess = true;
-   } else {
-      haveAccess = false;
-   }
-   return haveAccess;
+void System::configH1(void) {
+   //Start all indicators needed;
+   ENUM_TIMEFRAMES period = PERIOD_H1;
+   int ATRDefinition = iATR(_Symbol, period, 14);
+   int MACDDefinition = iMACD(_Symbol, period, 12, 26, 9, PRICE_CLOSE);
 }
 
+//TODO support lower time frame configuration
 //+------------------------------------------------------------------+

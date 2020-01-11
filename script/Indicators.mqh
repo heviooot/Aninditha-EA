@@ -1,20 +1,30 @@
-class Indicators{
-	protected:
-		string iMACDConfirmation();
-		string iMAConfirmation();
-		string iRSIConfirmation();
+//+------------------------------------------------------------------+
+//|                                      Aninditha-EA/Indicators.mqh |
+//|                              Copyright 2020, Harold and Siswandy |
+//+------------------------------------------------------------------+
+
+class Indicators {
+ public:
+   string MACD(ENUM_TIMEFRAMES period);
+   string MA(ENUM_TIMEFRAMES period);
+   string RSI(ENUM_TIMEFRAMES period);
+   //string ADX(ENUM_TIMEFRAMES period);
+   double ATR(ENUM_TIMEFRAMES period);
 };
 
+//+==================================================================+
+
 //+------------------------------------------------------------------+
-//|                                                                  |
+//| Moving Average Signal                                            |
 //+------------------------------------------------------------------+
-string Indicators::iMAConfirmation(void){
+string Indicators::MA(ENUM_TIMEFRAMES period) {
+	//TODO upgrade MA logic
    string signal = "";
 
    double SMA10Array[], SMA50Array[], SMA100Array[];
 
-   int SMA10Definition = iMA(_Symbol, _Period, 10, 0, MODE_SMA, PRICE_CLOSE);
-   int SMA50Definition = iMA(_Symbol, _Period, 50, 0, MODE_SMA, PRICE_CLOSE);
+   int SMA10Definition = iMA(_Symbol, period, 10, 0, MODE_SMA, PRICE_CLOSE);
+   int SMA50Definition = iMA(_Symbol, period, 50, 0, MODE_SMA, PRICE_CLOSE);
    //int SMA100Definition = iMA(_Symbol, _Period, 100, 0, MODE_SMA, PRICE_CLOSE);
 
    ArraySetAsSeries(SMA10Array, true);
@@ -52,16 +62,17 @@ string Indicators::iMAConfirmation(void){
 }
 
 //+------------------------------------------------------------------+
-//| MACD indicator                                                   |
+//| MACD indicator Signal                                            |
 //+------------------------------------------------------------------+
-string Indicators::iMACDConfirmation(void) {
+string Indicators::MACD(ENUM_TIMEFRAMES period) {
    string signal = "";
 
    //double myPriceArray[];//Array of several prices
    double macdBuffer[];
    double signalBuffer[];
 
-   int MACDDefinition = iMACD(_Symbol,_Period, 12, 26, 9, PRICE_CLOSE);
+   //int MACDDefinition = iMACD()
+   int MACDDefinition = iMACD(_Symbol, period, 12, 26, 9, PRICE_CLOSE);
 
    //ArraySetAsSeries(myPriceArray, true);//sort price from current downwards
    ArraySetAsSeries(macdBuffer, true);
@@ -87,34 +98,19 @@ string Indicators::iMACDConfirmation(void) {
          signal = "sell";
       }
    }
-   /*
-      if(macdRecent < 0) {
-         if(signalBefore > macdBefore) {
-            if(signalRecent < macdRecent) {
-               signal = "buy";
-            }
-         }
-      }
-      if(macdRecent > 0) {
-         if(signalBefore < macdBefore) {
-            if(signalRecent > macdRecent) {
-               signal = "sell";
-            }
-         }
-      }
-   */
    return signal;
 }
 
 //+------------------------------------------------------------------+
-//| RSI indicator                                                    |
+//| RSI indicator Signal                                             |
 //+------------------------------------------------------------------+
-string Indicators::iRSIConfirmation(void) {
+string Indicators::RSI(ENUM_TIMEFRAMES period) {
+	//TODO upgrade RSI logic
    string signal = "";
 
    double myPriceArray[];
 
-   int RSIDefinition = iRSI(_Symbol, _Period, 14, PRICE_CLOSE);
+   int RSIDefinition = iRSI(_Symbol, period, 14, PRICE_CLOSE);
 
    ArraySetAsSeries(myPriceArray, true);//sort price from current downwards
 
@@ -139,6 +135,25 @@ string Indicators::iRSIConfirmation(void) {
       signal = "sell";
    }
    return signal;
+}
+
+
+//+------------------------------------------------------------------+
+//| Get the recent ATR value                                         |
+//+------------------------------------------------------------------+
+double Indicators::ATR(ENUM_TIMEFRAMES period) {
+
+   double myPriceArray[];
+
+   int ATRDefinition = iATR(_Symbol, period, 14);
+
+   ArraySetAsSeries(myPriceArray, true);
+
+   CopyBuffer(ATRDefinition, 0, 0, 3, myPriceArray);
+
+   double ATRValue = NormalizeDouble(myPriceArray[0], 4);
+
+   return ATRValue;
 }
 
 //TODO add more indicators

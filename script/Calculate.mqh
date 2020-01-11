@@ -1,15 +1,23 @@
-class Calculate{
-	public:
-		double lotSize();
-		double stopLoss(string signal, double entry);
-		double takeProfit(string signal, double entry);
-		double askPrice();
-		double bidPrice();
-	private:
-		double dynamicLot(double lotSize);
-		double maxRiskInDollar(double balance, double percent);
-		
+//+------------------------------------------------------------------+
+//|                                       Aninditha-EA/Calculate.mqh |
+//|                              Copyright 2020, Harold and Siswandy |
+//+------------------------------------------------------------------+
+
+#include "Indicators.mqh";
+
+class Calculate: private Indicators {
+ public:
+   double lotSize();
+   double stopLoss(string signal, double entry);
+   double takeProfit(string signal, double entry);
+   double askPrice();
+   double bidPrice();
+ private:
+   double dynamicLot(double lotSize);
+   double maxRiskInDollar(double balance, double percent);
 };
+
+//+==================================================================+
 
 //+------------------------------------------------------------------+
 //| Calculate lot size dynamicaly                                    |
@@ -25,8 +33,11 @@ double Calculate::lotSize(void) {
 
 double Calculate::dynamicLot(double lotSize) {
 
-   double maxPipsRisked = 5;
-   double maxDlrsRisked = maxRiskInDollar(AccountInfoDouble(ACCOUNT_BALANCE),2);
+   Indicators i;
+
+   double maxPipsRisked = NormalizeDouble((i.ATR(PERIOD_H1)*10000),0); //convert the ATR value into numbers of pips
+   //Print("Pips: " + maxPipsRisked);
+   double maxDlrsRisked = maxRiskInDollar(AccountInfoDouble(ACCOUNT_BALANCE),2); //risk only 2% of the current balance
 
    //EUR-USD - Standart
    double pricePerPip = maxDlrsRisked / maxPipsRisked;
@@ -57,13 +68,19 @@ double Calculate::maxRiskInDollar(double balance,double percent) {
 //+------------------------------------------------------------------+
 double Calculate::stopLoss(string signal,double entry) {
    //TODO support pending order calculation
-   //TODO make a dynamic pips range
+   //TODO support trailing order calculation
+
+   Indicators i;
+
    double sl = 0;
+   double slATR = i.ATR(PERIOD_H1);
    if(signal == "buy") {
-      sl = (entry-(50*_Point)); //stop loss 5 pips
+      sl = (entry - slATR); //stop loss using ATR
+      //sl = (entry-(50*_Point)); //stop loss 5 pips
    }
    if(signal == "sell") {
-      sl = (entry+(50*_Point)); //stop loss 5 pips
+      sl = (entry + slATR); //stop loss using ATR
+      //sl = (entry+(50*_Point)); //stop loss 5 pips
    }
    return sl;
 }
@@ -73,13 +90,19 @@ double Calculate::stopLoss(string signal,double entry) {
 //+------------------------------------------------------------------+
 double Calculate::takeProfit(string signal,double entry) {
    //TODO support pending order calculation
-   //TODO make a dynamic pips range
+	//TODO support trailing order calculation
+	
+   Indicators i;
+
    double tp = 0;
+   double tpATR = i.ATR(PERIOD_H1);
    if(signal == "buy") {
-      tp = (entry+(150*_Point)); //stop loss 15 pips
+      tp = (entry + (3 * tpATR)); //take profit 3x ATR
+      //tp = (entry + (150*_Point)); //take profit 15 pips
    }
    if(signal == "sell") {
-      tp = (entry-(150*_Point)); //stop loss 15 pips
+      tp = (entry - (3 * tpATR)); //take profit 3x ATR
+      //tp = (entry - (150*_Point)); //take profit 15 pips
    }
    return tp;
 }
