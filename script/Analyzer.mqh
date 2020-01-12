@@ -44,9 +44,23 @@ bool Analyzer::isItTrending(void) {
 
    double ADXValue = i.ADX(PERIOD_H1, 0, 0);
 
-   if(ADXValue >= 25.00) {
-      trending = true;
+	bool trendADX = false;
+
+   if(ADXValue >= 25.00) { //ADX trend boundary 25.00
+      trendADX = true;
    }
+   
+   double ATRValue = i.ATR(PERIOD_H1, 0);
+   
+   bool volatilityATR = false;
+   
+   if(ATRValue > 0.0012){ //volatility boundary 12 pips above
+   	volatilityATR = true;
+   }
+
+	if(trendADX == true && volatilityATR == true){
+		trending = true;
+	}
 
    return trending;
 }
