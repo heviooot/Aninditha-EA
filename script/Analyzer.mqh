@@ -35,7 +35,8 @@ bool Analyzer::isItTrending(void) {
    Indicators i;
 
    bool trending = false;
-// Hide temporary
+
+   // ADX section
    double ADXValue = i.ADX(PERIOD_H1, 0, 0);
 
    bool trendADX = false;
@@ -47,6 +48,7 @@ bool Analyzer::isItTrending(void) {
    if(trendADX == true) {
       trending = true;
    }
+
    return trending;
 }
 
@@ -63,11 +65,11 @@ string Analyzer::strategy(void) {
    //Stochastic (STC)
    string stcSignal = "";
 
-   double stcRecent = i.STC(confPer, 0, 0);
-   double stcBefore = i.STC(confPer, 0, 1);
+   double stcRecent = i.STC(trenPer, 0, 0);
+   double stcBefore = i.STC(trenPer, 0, 1);
 
-   double signalRecent = i.STC(confPer, 1, 0);
-   double signalBefore = i.STC(confPer, 1, 1);
+   double signalRecent = i.STC(trenPer, 1, 0);
+   double signalBefore = i.STC(trenPer, 1, 1);
 
    if(stcBefore <= 20.00) {
       if(stcBefore < stcRecent) {
@@ -79,52 +81,33 @@ string Analyzer::strategy(void) {
          stcSignal = "sell";
       }
    }
-/*
-   //RSI
-   string rsiSignal = "";
 
-   double rsiValue = i.RSI(confPer, 0);
+   // MA section
+   string maSignal = "";
 
-   if(rsiValue < 30.00) {
-      rsiSignal = "buy";
+   double ma20 = i.MA(trenPer, 0, 20);
+   double ma25 = i.MA(trenPer, 0, 25);
+   double ma30 = i.MA(trenPer, 0, 30);
+   double ma35 = i.MA(trenPer, 0, 35);
+   double ma40 = i.MA(trenPer, 0, 40);
+   double ma45 = i.MA(trenPer, 0, 45);
+   double ma50 = i.MA(trenPer, 0, 50);
+   double ma55 = i.MA(trenPer, 0, 55);
+
+   if((ma20 < ma25) && (ma25 < ma30) && (ma30 < ma35) && (ma35 < ma40) && (ma40 < ma45) && (ma45 < ma50) && (ma50 < ma55)) {
+      maSignal = "sell";
    }
-   if(rsiValue > 70.00) {
-      rsiSignal = "sell";
+   if((ma20 > ma25) && (ma25 > ma30) && (ma30 > ma35) && (ma35 > ma40) && (ma40 > ma45) && (ma45 > ma50) && (ma50 > ma55)) {
+      maSignal = "buy";
    }
 
-   //CCI
-   string cciSignal = "";
-
-   double cciValue = i.CCI(confPer, 0);
-
-   if(cciValue < -100.00) {
-		cciSignal = "buy";
-   }
-   if(cciValue > 100.00) {
-		cciSignal = "sell";
-   }
-*/   
-   //ADX section
-   //TODO add trend power decreade signal
-	string adxSignal = "";
-
-   double plusDI = i.ADX(trenPer, 1, 0);
-   double minusDI = i.ADX(trenPer, 2, 0);
-
-   if(plusDI > minusDI) {
-      adxSignal = "buy";
-   }
-   if(plusDI < minusDI) {
-      adxSignal = "sell";
-   }
-	
 
    //Confirmation section
 
-   if(stcSignal == "buy" && adxSignal == "buy") {
+   if(stcSignal == "buy" && maSignal == "buy") {
       confirmation = "buy";
    }
-   if(stcSignal == "sell" && adxSignal == "buy") {
+   if(stcSignal == "sell" && maSignal == "sell") {
       confirmation = "sell";
    }
 

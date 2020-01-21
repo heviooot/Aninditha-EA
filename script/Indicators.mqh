@@ -12,6 +12,8 @@ class Indicators {
    double STC(ENUM_TIMEFRAMES period, int buffer, int index);
    double RSI(ENUM_TIMEFRAMES period, int index);
    double CCI(ENUM_TIMEFRAMES period, int index);
+
+   double MA(ENUM_TIMEFRAMES period, int index, int ma_period);
 };
 
 //+==================================================================+
@@ -136,6 +138,23 @@ double Indicators::ADX(ENUM_TIMEFRAMES period,int buffer,int index) {
    ADXValue = NormalizeDouble(myPriceArray[0], 2);
 
    return ADXValue;
+}
+
+//+------------------------------------------------------------------+
+//| Get MA value                                                     |
+//+------------------------------------------------------------------+
+double Indicators::MA(ENUM_TIMEFRAMES period,int index, int ma_period) {
+	double myPriceArray[];
+
+   int MADefinition = iMA(_Symbol, period, ma_period, 0, MODE_EMA, PRICE_CLOSE);
+
+   ArraySetAsSeries(myPriceArray, true);
+
+   CopyBuffer(MADefinition, 0, 0, 3, myPriceArray);
+
+   double MAValue = myPriceArray[index];
+
+   return MAValue;
 }
 
 //TODO add more indicators
