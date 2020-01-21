@@ -36,7 +36,8 @@ double Calculate::dynamicLot(double lotSize) {
 
    Indicators i;
 
-   double maxPipsRisked = NormalizeDouble((i.ATR(PERIOD_H1, 0)*10000),0); //convert the ATR value into numbers of pips
+	ENUM_TIMEFRAMES period = PERIOD_H1;
+   double maxPipsRisked = NormalizeDouble((i.ATR(period, 0)*10000),0); //convert the ATR value into numbers of pips
    //Print("Pips: " + maxPipsRisked);
    double maxDlrsRisked = maxRiskInDollar(AccountInfoDouble(ACCOUNT_BALANCE),2); //risk only 2% of the current balance
 
@@ -72,9 +73,10 @@ double Calculate::stopLoss(string signal,double entry) {
    //TODO support trailing order calculation
 
    Indicators i;
+	ENUM_TIMEFRAMES period = PERIOD_H1;
 
    double sl = 0;
-   double slATR = i.ATR(PERIOD_H1, 0);
+   double slATR = i.ATR(period, 0);
    if(signal == "buy") {
       sl = (entry - slATR); //stop loss using ATR
       //sl = (entry-(50*_Point)); //stop loss 5 pips
@@ -94,9 +96,10 @@ double Calculate::takeProfit(string signal,double entry) {
 	//TODO support trailing order calculation
 	
    Indicators i;
+   ENUM_TIMEFRAMES period = PERIOD_H1;
 
    double tp = 0;
-   double tpATR = i.ATR(PERIOD_H1, 0);
+   double tpATR = i.ATR(period, 0);
    if(signal == "buy") {
       tp = (entry + (3 * tpATR)); //take profit 3x ATR
       //tp = (entry + (150*_Point)); //take profit 15 pips

@@ -24,13 +24,7 @@ string Analyzer::signal() {
 
    string signal = "";
 
-   bool trending = isItTrending();
-
-   if(trending == true) {
-
-      signal = strategy();
-
-   }
+   signal = strategy();
 
    return signal;
 
@@ -41,27 +35,18 @@ bool Analyzer::isItTrending(void) {
    Indicators i;
 
    bool trending = false;
-
+// Hide temporary
    double ADXValue = i.ADX(PERIOD_H1, 0, 0);
 
-	bool trendADX = false;
+   bool trendADX = false;
 
    if(ADXValue >= 25.00) { //ADX trend boundary 25.00
       trendADX = true;
    }
-   
-   double ATRValue = i.ATR(PERIOD_H1, 0);
-   
-   bool volatilityATR = false;
-   
-   if(ATRValue > 0.0012){ //volatility boundary 12 pips above
-   	volatilityATR = true;
+
+   if(trendADX == true) {
+      trending = true;
    }
-
-	if(trendADX == true && volatilityATR == true){
-		trending = true;
-	}
-
    return trending;
 }
 
@@ -70,36 +55,61 @@ string Analyzer::strategy(void) {
    //Use MACD (crossover) and ADX (+DI and -DI position) as confirmation
 
    Indicators i;
+   ENUM_TIMEFRAMES confPer = PERIOD_M15; //confirmation period
+   ENUM_TIMEFRAMES trenPer = PERIOD_H1;
 
    string confirmation = "";
 
-   //MACD section
+   //Stochastic (STC)
+   string stcSignal = "";
 
-   string macdSignal = "";
+   double stcRecent = i.STC(confPer, 0, 0);
+   double stcBefore = i.STC(confPer, 0, 1);
 
-   double macdRecent = i.MACD(PERIOD_H1, 0, 0);
-   double macdBefore = i.MACD(PERIOD_H1, 0, 1);
+   double signalRecent = i.STC(confPer, 1, 0);
+   double signalBefore = i.STC(confPer, 1, 1);
 
-   double signalRecent = i.MACD(PERIOD_H1, 1, 0);
-   double signalBefore = i.MACD(PERIOD_H1, 1, 1);
-
-   if(macdRecent > 0 && macdRecent > macdBefore) {
-      if(signalBefore < 0 && signalRecent < 0) {
-         macdSignal = "buy";
+   if(stcBefore <= 20.00) {
+      if(stcBefore < stcRecent) {
+         stcSignal = "buy";
       }
    }
-   if(macdRecent < 0 && macdRecent < macdBefore) {
-      if(signalBefore > 0 && signalRecent > 0) {
-         macdSignal = "sell";
+   if(stcBefore >= 80.00) {
+      if(stcBefore > stcRecent) {
+         stcSignal = "sell";
       }
    }
+/*
+   //RSI
+   string rsiSignal = "";
 
+   double rsiValue = i.RSI(confPer, 0);
+
+   if(rsiValue < 30.00) {
+      rsiSignal = "buy";
+   }
+   if(rsiValue > 70.00) {
+      rsiSignal = "sell";
+   }
+
+   //CCI
+   string cciSignal = "";
+
+   double cciValue = i.CCI(confPer, 0);
+
+   if(cciValue < -100.00) {
+		cciSignal = "buy";
+   }
+   if(cciValue > 100.00) {
+		cciSignal = "sell";
+   }
+*/   
    //ADX section
+   //TODO add trend power decreade signal
+	string adxSignal = "";
 
-   string adxSignal = "";
-
-   double plusDI = i.ADX(PERIOD_H1, 1, 0);
-   double minusDI = i.ADX(PERIOD_H1, 2, 0);
+   double plusDI = i.ADX(trenPer, 1, 0);
+   double minusDI = i.ADX(trenPer, 2, 0);
 
    if(plusDI > minusDI) {
       adxSignal = "buy";
@@ -107,16 +117,17 @@ string Analyzer::strategy(void) {
    if(plusDI < minusDI) {
       adxSignal = "sell";
    }
-   
+	
+
    //Confirmation section
-   
-   if(macdSignal == "buy" && adxSignal == "buy"){
-   	confirmation = "buy";
+
+   if(stcSignal == "buy" && adxSignal == "buy") {
+      confirmation = "buy";
    }
-   if(macdSignal == "sell" && adxSignal == "sell"){
-   	confirmation = "sell";
+   if(stcSignal == "sell" && adxSignal == "buy") {
+      confirmation = "sell";
    }
-   
+
    return confirmation;
 
 }

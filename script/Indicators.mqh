@@ -8,6 +8,10 @@ class Indicators {
    double MACD(ENUM_TIMEFRAMES period, int buffer, int index);
    double ADX(ENUM_TIMEFRAMES period, int buffer, int index);
    double ATR(ENUM_TIMEFRAMES period, int index);
+
+   double STC(ENUM_TIMEFRAMES period, int buffer, int index);
+   double RSI(ENUM_TIMEFRAMES period, int index);
+   double CCI(ENUM_TIMEFRAMES period, int index);
 };
 
 //+==================================================================+
@@ -16,10 +20,8 @@ class Indicators {
 //| Get MACD Value                                                   |
 //+------------------------------------------------------------------+
 double Indicators::MACD(ENUM_TIMEFRAMES period, int buffer, int index) {
-	
-	//TODO turn it more modular, and output the MACD value only
-	//the parameters inputed: period, buffer, index (recent = 0 < late)
 
+   //the parameters inputed: period, buffer, index (recent = 0 < late)
    double MACDValue;
 
    //double myPriceArray[];//Array of several prices
@@ -36,8 +38,66 @@ double Indicators::MACD(ENUM_TIMEFRAMES period, int buffer, int index) {
 
    //Make changes
    MACDValue = macdBuffer[index];
-  
+
    return MACDValue;
+}
+
+//+------------------------------------------------------------------+
+//| Get STC value                                                    |
+//+------------------------------------------------------------------+
+double Indicators::STC(ENUM_TIMEFRAMES period,int buffer,int index) {
+
+   //Stochastic Indicator
+   double STCValue;
+
+   double stcBuffer[];
+
+   int STCDefinition = iStochastic(_Symbol, period, 5, 3, 3, MODE_SMA, STO_CLOSECLOSE);
+
+   ArraySetAsSeries(stcBuffer, true);
+
+   CopyBuffer(STCDefinition, buffer, 0, 3, stcBuffer);
+
+   STCValue = NormalizeDouble(stcBuffer[index], 2);
+
+   return STCValue;
+
+}
+
+//+------------------------------------------------------------------+
+//| Get RSI value                                                    |
+//+------------------------------------------------------------------+
+double Indicators::RSI(ENUM_TIMEFRAMES period,int index) {
+
+   double myPriceArray[];
+
+   int RSIDefinition = iRSI(_Symbol, period, 14, PRICE_CLOSE);
+
+   ArraySetAsSeries(myPriceArray, true);
+
+   CopyBuffer(RSIDefinition, 0, 0, 3, myPriceArray);
+
+   double RSIValue = NormalizeDouble(myPriceArray[index], 2);
+
+   return RSIValue;
+}
+
+//+------------------------------------------------------------------+
+//| Get CCI value                                                    |
+//+------------------------------------------------------------------+
+double Indicators::CCI(ENUM_TIMEFRAMES period,int index) {
+
+   double myPriceArray[];
+
+   int CCIDefinition = iCCI(_Symbol, period, 14, PRICE_TYPICAL);
+
+   ArraySetAsSeries(myPriceArray, true);
+
+   CopyBuffer(CCIDefinition, 0, 0, 3, myPriceArray);
+
+   double CCIValue = NormalizeDouble(myPriceArray[index], 2);
+
+   return CCIValue;
 }
 
 //+------------------------------------------------------------------+
@@ -53,7 +113,7 @@ double Indicators::ATR(ENUM_TIMEFRAMES period, int index) {
 
    CopyBuffer(ATRDefinition, 0, 0, 3, myPriceArray);
 
-   double ATRValue = NormalizeDouble(myPriceArray[0], 4);
+   double ATRValue = NormalizeDouble(myPriceArray[index], 4);
 
    return ATRValue;
 }
@@ -62,19 +122,19 @@ double Indicators::ATR(ENUM_TIMEFRAMES period, int index) {
 //| Get ADX value                                                    |
 //+------------------------------------------------------------------+
 double Indicators::ADX(ENUM_TIMEFRAMES period,int buffer,int index) {
-   
+
    double ADXValue;
-   
+
    double myPriceArray[];
-   
+
    int ADXDefinition = iADX(_Symbol, period, 14);
-   
+
    ArraySetAsSeries(myPriceArray, true);
-   
+
    CopyBuffer(ADXDefinition, buffer, 0, 3, myPriceArray);
-   
+
    ADXValue = NormalizeDouble(myPriceArray[0], 2);
-   
+
    return ADXValue;
 }
 
