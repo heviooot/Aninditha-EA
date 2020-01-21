@@ -68,7 +68,7 @@ void OnTick() {
 
       string signal = "";
 
-      //bool goingStrong = AninAnalyze.isItTrending();
+      bool goingStrong = AninAnalyze.isItTrending();
 
 		/*
       if(currentBalance > previousBalance) {
@@ -78,29 +78,34 @@ void OnTick() {
          signal = AninAnalyze.signal();
       }
       */
-      signal = AninAnalyze.signal();
       
-      if(signal == "buy") {
-         previousBalance = currentBalance;
-         double volume = AninCalculate.lotSize();
-         double entryPoint = AninCalculate.askPrice();
-         double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
-         double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
-         string comment = "Balance: " + DoubleToString(previousBalance, 2);
-         //Print(comment);
-         AninExecute.instantBuy(volume,entryPoint, stopLoss, takeProfit, comment);
-         //tempSignal = signal;
-      }
-      if(signal == "sell") {
-         previousBalance = currentBalance;
-         double volume = AninCalculate.lotSize();
-         double entryPoint = AninCalculate.bidPrice();
-         double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
-         double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
-         string comment = "Balance: " + DoubleToString(previousBalance, 2);
-         //Print(comment);
-         AninExecute.instantSell(volume,entryPoint, stopLoss, takeProfit, comment);
-         //tempSignal = signal;
+      if(goingStrong == true){
+      	
+      	signal = AninAnalyze.signal();
+      
+		   if(signal == "buy") {
+		      previousBalance = currentBalance;
+		      double volume = AninCalculate.lotSize();
+		      double entryPoint = AninCalculate.askPrice();
+		      double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
+		      double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
+		      string comment = "Balance: " + DoubleToString(previousBalance, 2);
+		      //Print(comment);
+		      AninExecute.instantBuy(volume,entryPoint, stopLoss, takeProfit, comment);
+		      //tempSignal = signal;
+		   }
+		   if(signal == "sell") {
+		      previousBalance = currentBalance;
+		      double volume = AninCalculate.lotSize();
+		      double entryPoint = AninCalculate.bidPrice();
+		      double stopLoss = AninCalculate.stopLoss(signal, entryPoint);
+		      double takeProfit = AninCalculate.takeProfit(signal, entryPoint);
+		      string comment = "Balance: " + DoubleToString(previousBalance, 2);
+		      //Print(comment);
+		      AninExecute.instantSell(volume,entryPoint, stopLoss, takeProfit, comment);
+		      //tempSignal = signal;
+		   }
+		   
       }
    }
 }

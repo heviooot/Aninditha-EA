@@ -44,8 +44,17 @@ bool Analyzer::isItTrending(void) {
    if(ADXValue >= 25.00) { //ADX trend boundary 25.00
       trendADX = true;
    }
+   
+   // ATR section
+   double ATRValue = i.ATR(PERIOD_H1, 0);
+   
+   bool trendATR = false;
+   
+   if(ATRValue <= 0.0015){
+   	trendATR = true;
+   }
 
-   if(trendADX == true) {
+   if(trendADX == true && trendATR == true) {
       trending = true;
    }
 
@@ -72,12 +81,12 @@ string Analyzer::strategy(void) {
    double signalBefore = i.STC(trenPer, 1, 1);
 
    if(stcBefore <= 20.00) {
-      if(stcBefore < stcRecent) {
+      if(stcRecent < signalRecent) {
          stcSignal = "buy";
       }
    }
    if(stcBefore >= 80.00) {
-      if(stcBefore > stcRecent) {
+      if(stcRecent > signalRecent) {
          stcSignal = "sell";
       }
    }
@@ -85,6 +94,7 @@ string Analyzer::strategy(void) {
    // MA section
    string maSignal = "";
 
+	double maPrc = i.MA(trenPer, 0, 7);
    double ma20 = i.MA(trenPer, 0, 20);
    double ma25 = i.MA(trenPer, 0, 25);
    double ma30 = i.MA(trenPer, 0, 30);
@@ -94,10 +104,10 @@ string Analyzer::strategy(void) {
    double ma50 = i.MA(trenPer, 0, 50);
    double ma55 = i.MA(trenPer, 0, 55);
 
-   if((ma20 < ma25) && (ma25 < ma30) && (ma30 < ma35) && (ma35 < ma40) && (ma40 < ma45) && (ma45 < ma50) && (ma50 < ma55)) {
+   if((maPrc < ma20) && (ma20 < ma25) && (ma25 < ma30) && (ma30 < ma35) && (ma35 < ma40) && (ma40 < ma45) && (ma45 < ma50) && (ma50 < ma55)) {
       maSignal = "sell";
    }
-   if((ma20 > ma25) && (ma25 > ma30) && (ma30 > ma35) && (ma35 > ma40) && (ma40 > ma45) && (ma45 > ma50) && (ma50 > ma55)) {
+   if((maPrc < ma20) && (ma20 > ma25) && (ma25 > ma30) && (ma30 > ma35) && (ma35 > ma40) && (ma40 > ma45) && (ma45 > ma50) && (ma50 > ma55)) {
       maSignal = "buy";
    }
 
