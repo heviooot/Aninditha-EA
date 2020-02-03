@@ -38,6 +38,7 @@ int OnInit() {
    }
 
    Settings.configH1();
+   
 
    return(INIT_SUCCEEDED);
 

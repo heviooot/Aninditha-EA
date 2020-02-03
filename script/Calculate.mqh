@@ -15,6 +15,10 @@ class Calculate: private Indicators {
    //double entry();
  private:
    double dynamicLot(double lotSize);
+   double usdBase(string pair, double lotSize);
+   double usdCounter(string pair, double lotSize);
+   double usdJpy(double lotSize);
+   double otherCurr(string pair); //TODO: implement in the future
    double maxRiskInDollar(double balance, double percent);
 };
 
@@ -36,7 +40,56 @@ double Calculate::dynamicLot(double lotSize) {
 
    Indicators i;
 
-	ENUM_TIMEFRAMES period = PERIOD_H1;
+   string symbol = _Symbol;
+
+   if(symbol == "EURUSD" || symbol == "GBPUSD" || symbol == "AUDUSD" || symbol == "NZDUSD") {
+      lotSize = usdCounter(symbol, lotSize);
+   }
+   if(symbol == "USDCHF" || symbol == "USDCAD" || symbol == "USDJPY") {
+      if(symbol == "USDJPY") {
+         lotSize = usdJpy(lotSize);
+      } else {
+         lotSize = usdBase(symbol, lotSize);
+      }
+   }
+
+   return lotSize;
+
+}
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+double Calculate::usdBase(string pair, double lotSize) {
+
+   Indicators i;
+
+   ENUM_TIMEFRAMES period = PERIOD_H1;
+   double maxPipsRisked = NormalizeDouble((i.ATR(period, 0)*10000),0); //convert the ATR value into numbers of pips
+   //Print("Pips: " + maxPipsRisked);
+   double maxDlrsRisked = maxRiskInDollar(AccountInfoDouble(ACCOUNT_BALANCE),2); //risk only 2% of the current balance
+
+   //EUR-USD - Standart
+   double pricePerPip = (SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE)*maxDlrsRisked) / maxPipsRisked; //convert it from symbol to USD
+   lotSize = pricePerPip * (10000/1);
+   lotSize /= 100000;
+
+   //Shift the decimal to 10^-2
+   lotSize = NormalizeDouble(lotSize, 5);
+   lotSize = NormalizeDouble(lotSize, 4);
+   lotSize = NormalizeDouble(lotSize, 3);
+   lotSize = NormalizeDouble(lotSize, 2);
+   //Print("Lot Size Normal = " + lotSize);
+
+   return lotSize;
+
+}
+
+double Calculate::usdCounter(string pair, double lotSize) {
+
+   Indicators i;
+
+   ENUM_TIMEFRAMES period = PERIOD_H1;
    double maxPipsRisked = NormalizeDouble((i.ATR(period, 0)*10000),0); //convert the ATR value into numbers of pips
    //Print("Pips: " + maxPipsRisked);
    double maxDlrsRisked = maxRiskInDollar(AccountInfoDouble(ACCOUNT_BALANCE),2); //risk only 2% of the current balance
@@ -53,10 +106,34 @@ double Calculate::dynamicLot(double lotSize) {
    lotSize = NormalizeDouble(lotSize, 2);
    //Print("Lot Size Normal = " + lotSize);
 
-   //TODO support other currency pair
-
    return lotSize;
 }
+
+//TODO: Do USDJPY
+double Calculate::usdJpy(double lotSize){
+
+   Indicators i;
+
+   ENUM_TIMEFRAMES period = PERIOD_H1;
+   double maxPipsRisked = NormalizeDouble((i.ATR(period, 0)*10),0); //convert the ATR value into numbers of pips
+   //Print("Pips: " + maxPipsRisked);
+   double maxDlrsRisked = maxRiskInDollar(AccountInfoDouble(ACCOUNT_BALANCE),2); //risk only 2% of the current balance
+
+   //EUR-USD - Standart
+   double pricePerPip = maxDlrsRisked / maxPipsRisked;
+   lotSize = pricePerPip * (10000/1);
+   lotSize /= 100000;
+
+   //Shift the decimal to 10^-2
+   lotSize = NormalizeDouble(lotSize, 3);
+   lotSize = NormalizeDouble(lotSize, 2);
+   //Print("Lot Size Normal = " + lotSize);
+
+   return lotSize;
+   
+}
+
+
 
 //+------------------------------------------------------------------+
 //| Calculate the maximum risk in dollar                             |
@@ -73,7 +150,7 @@ double Calculate::stopLoss(string signal,double entry) {
    //TODO support trailing order calculation
 
    Indicators i;
-	ENUM_TIMEFRAMES period = PERIOD_H1;
+   ENUM_TIMEFRAMES period = PERIOD_H1;
 
    double sl = 0;
    double slATR = i.ATR(period, 0);
@@ -93,8 +170,8 @@ double Calculate::stopLoss(string signal,double entry) {
 //+------------------------------------------------------------------+
 double Calculate::takeProfit(string signal,double entry) {
    //TODO support pending order calculation
-	//TODO support trailing order calculation
-	
+   //TODO support trailing order calculation
+
    Indicators i;
    ENUM_TIMEFRAMES period = PERIOD_H1;
 
