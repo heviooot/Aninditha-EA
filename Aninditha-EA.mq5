@@ -71,18 +71,14 @@ void OnTick() {
 
       bool goingStrong = AninAnalyze.isItTrending();
 
-		/*
-      if(currentBalance > previousBalance) {
-         //TODO check trend first feature
-         signal = tempSignal;
-      } else {
-         signal = AninAnalyze.signal();
-      }
-      */
-      
       if(goingStrong == true){
-      	
-      	signal = AninAnalyze.signal();
+   		//Print("Yes");
+   		if(currentBalance > previousBalance) {
+         	//TODO check trend first feature
+        		signal = tempSignal; 
+         } else {
+            signal = AninAnalyze.signal();
+         }    
       
 		   if(signal == "buy") {
 		      previousBalance = currentBalance;
@@ -107,7 +103,11 @@ void OnTick() {
 		      //tempSignal = signal;
 		   }
 		   
-      }
+		   tempSignal = signal;
+		   
+   	} else {
+   		//Print("No");
+   	}
    }
 }
 //+------------------------------------------------------------------+

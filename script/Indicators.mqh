@@ -12,6 +12,8 @@ class Indicators {
    double STC(ENUM_TIMEFRAMES period, int buffer, int index);
    double RSI(ENUM_TIMEFRAMES period, int index);
    double CCI(ENUM_TIMEFRAMES period, int index);
+   double BRP(ENUM_TIMEFRAMES period, int index);
+   double BLP(ENUM_TIMEFRAMES period, int index);
 
    double MA(ENUM_TIMEFRAMES period, int index, int ma_period);
 };
@@ -156,6 +158,39 @@ double Indicators::MA(ENUM_TIMEFRAMES period,int index, int ma_period) {
 
    return MAValue;
 }
+
+
+double Indicators::BLP(ENUM_TIMEFRAMES period,int index){
+   //Bull power
+   double myPriceArray[];
+   
+   int blpDefinition = iBullsPower(_Symbol, period, 13);
+   
+   ArraySetAsSeries(myPriceArray, true);
+   
+   CopyBuffer(blpDefinition, 0, 0, 3, myPriceArray);
+   
+   double blpValue = myPriceArray[index];
+   
+   return blpValue;
+}
+
+double Indicators::BRP(ENUM_TIMEFRAMES period,int index){
+   //Bear power
+   double myPriceArray[];
+   
+   int brpDefinition = iBearsPower(_Symbol, period, 13);
+   
+   ArraySetAsSeries(myPriceArray, true);
+   
+   CopyBuffer(brpDefinition, 0, 0, 3, myPriceArray);
+   
+   double brpValue = myPriceArray[index];
+   
+   return brpValue;
+}
+
+
 
 //TODO add more indicators
 

@@ -11,6 +11,12 @@ class Analyzer: private Indicators {
    bool isItTrending();
  private:
    string strategy();
+   string stochastic(ENUM_TIMEFRAMES period);
+   string eMovingAvg(ENUM_TIMEFRAMES period);
+
+   string bearBullPower(ENUM_TIMEFRAMES period);
+   string bearsPower(ENUM_TIMEFRAMES period);
+   string bullsPower(ENUM_TIMEFRAMES period);
 };
 
 //+==================================================================+
@@ -44,17 +50,17 @@ bool Analyzer::isItTrending(void) {
    if(ADXValue >= 25.00) { //ADX trend boundary 25.00
       trendADX = true;
    }
-   
+
    // ATR section
    double ATRValue = i.ATR(PERIOD_H1, 0);
-   
-   bool trendATR = false;
-   
-   if(ATRValue <= 0.0015){
-   	trendATR = true;
+
+   bool rangeATR = false;
+
+   if(ATRValue <= 0.0010) {
+      rangeATR = true;
    }
 
-   if(trendADX == true && trendATR == true) {
+   if(rangeATR) { //delete ADX
       trending = true;
    }
 
@@ -67,57 +73,29 @@ string Analyzer::strategy(void) {
 
    Indicators i;
    ENUM_TIMEFRAMES confPer = PERIOD_M15; //confirmation period
-   ENUM_TIMEFRAMES trenPer = PERIOD_H1;
+   ENUM_TIMEFRAMES trendPer = PERIOD_H1;
 
    string confirmation = "";
 
-   //Stochastic (STC)
+   // STC section
    string stcSignal = "";
-
-   double stcRecent = i.STC(trenPer, 0, 0);
-   double stcBefore = i.STC(trenPer, 0, 1);
-
-   double signalRecent = i.STC(trenPer, 1, 0);
-   double signalBefore = i.STC(trenPer, 1, 1);
-
-   if(stcBefore <= 20.00) {
-      if(stcRecent < signalRecent) {
-         stcSignal = "buy";
-      }
-   }
-   if(stcBefore >= 80.00) {
-      if(stcRecent > signalRecent) {
-         stcSignal = "sell";
-      }
-   }
+   stcSignal = stochastic(trendPer);
 
    // MA section
    string maSignal = "";
+   maSignal = eMovingAvg(trendPer);
 
-	double maPrc = i.MA(trenPer, 0, 7);
-   double ma20 = i.MA(trenPer, 0, 20);
-   double ma25 = i.MA(trenPer, 0, 25);
-   double ma30 = i.MA(trenPer, 0, 30);
-   double ma35 = i.MA(trenPer, 0, 35);
-   double ma40 = i.MA(trenPer, 0, 40);
-   double ma45 = i.MA(trenPer, 0, 45);
-   double ma50 = i.MA(trenPer, 0, 50);
-   double ma55 = i.MA(trenPer, 0, 55);
-
-   if((maPrc < ma20) && (ma20 < ma25) && (ma25 < ma30) && (ma30 < ma35) && (ma35 < ma40) && (ma40 < ma45) && (ma45 < ma50) && (ma50 < ma55)) {
-      maSignal = "sell";
-   }
-   if((maPrc < ma20) && (ma20 > ma25) && (ma25 > ma30) && (ma30 > ma35) && (ma35 > ma40) && (ma40 > ma45) && (ma45 > ma50) && (ma50 > ma55)) {
-      maSignal = "buy";
-   }
+   // Bear Bull section
+   string bbSignal = "";
+   bbSignal = bearBullPower(trendPer);
 
 
    //Confirmation section
 
-   if(stcSignal == "buy" && maSignal == "buy") {
+   if(bbSignal == "buy" && maSignal == "buy") {
       confirmation = "buy";
    }
-   if(stcSignal == "sell" && maSignal == "sell") {
+   if(bbSignal == "sell" && maSignal == "sell") {
       confirmation = "sell";
    }
 
@@ -125,6 +103,123 @@ string Analyzer::strategy(void) {
 
 }
 
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+string Analyzer::bearBullPower(ENUM_TIMEFRAMES period) {
+   
+   string signal = "";
+   
+   // Bulls Power section
+   string bulSignal = "";
+   bulSignal = bullsPower(period);
+
+   // Bears Power section
+   string brpSignal = "";
+   brpSignal = bearsPower(period);
+
+   if(brpSignal == bulSignal) {
+      signal = brpSignal;
+   }
+   
+   return signal;
+}
+
+string Analyzer::bearsPower(ENUM_TIMEFRAMES period) {
+
+   Indicators i;
+
+   string signal = "";
+
+   double bearNumber = i.BRP(period, 0);
+
+   if(bearNumber > 0.0) { //TODO: 5 pips
+      signal = "buy";
+   }
+   if(bearNumber < -0.00020) { //TODO: 5 pips
+      signal = "sell";
+   }
+
+
+   return signal;
+}
+
+string Analyzer::bullsPower(ENUM_TIMEFRAMES period) {
+
+   Indicators i;
+
+   string signal = "";
+
+   double bullNumber = i.BLP(period, 0);
+
+   if(bullNumber > 0.00020) { //TODO: 5 pips
+      signal = "buy";
+   }
+   if(bullNumber < -0.0) { //TODO: 5 pips
+      signal = "sell";
+   }
+
+   return signal;
+
+}
+
+string Analyzer::stochastic(ENUM_TIMEFRAMES period) {
+
+   //Stochastic (STC)
+
+   Indicators i;
+
+   string signal = "";
+
+   double stcRecent = i.STC(period, 0, 0);
+   double stcBefore = i.STC(period, 0, 1);
+
+   double signalRecent = i.STC(period, 1, 0);
+   double signalBefore = i.STC(period, 1, 1);
+
+   if(stcBefore <= 20.00) {
+      if(stcRecent < signalRecent) {
+         signal = "buy";
+      }
+   }
+   if(stcBefore >= 80.00) {
+      if(stcRecent > signalRecent) {
+         signal = "sell";
+      }
+   }
+
+   return signal;
+}
+
+string Analyzer::eMovingAvg(ENUM_TIMEFRAMES period) {
+
+   //Exponensial Moving Average (EMA)
+   Indicators i;
+
+   string signal = "";
+
+   double maPrc = i.MA(period, 0, 3);
+   double ma07 = i.MA(period, 0, 7);
+   double ma20 = i.MA(period, 0, 20);
+   double ma25 = i.MA(period, 0, 25);
+   double ma30 = i.MA(period, 0, 30);
+   double ma35 = i.MA(period, 0, 35);
+   double ma40 = i.MA(period, 0, 40);
+   double ma45 = i.MA(period, 0, 45);
+   double ma50 = i.MA(period, 0, 50);
+   double ma55 = i.MA(period, 0, 55);
+
+   //TODO: check MA spread
+   
+   if((maPrc < ma07) && (ma07 < ma20) && (ma20 < ma25) && (ma25 < ma30) && (ma30 < ma35) && (ma35 < ma40) && (ma40 < ma45) && (ma45 < ma50) && (ma50 < ma55)) {
+      signal = "sell";
+   }
+   if((maPrc < ma07) && (ma07 < ma20) && (ma20 > ma25) && (ma25 > ma30) && (ma30 > ma35) && (ma35 > ma40) && (ma40 > ma45) && (ma45 > ma50) && (ma50 > ma55)) {
+      signal = "buy";
+   }
+
+   return signal;
+}
 
 //TODO add more indicators configuration
 //TODO come up with a trending strategy and ranging strategy
